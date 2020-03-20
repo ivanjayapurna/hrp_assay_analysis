@@ -17,16 +17,17 @@ def get_points(img):
 
 def get_colour(img, pts):
 	# get pixel value for each RGB channel for each of the 4 well plate points
-	r_vals = []
-	g_vals = []
-	b_vals = []
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+	h_vals = []
+	s_vals = []
+	v_vals = []
 
 	for pt in pts:
-		r_vals.append(img[np.int(pt[1]), np.int(pt[0]), 0])
-		g_vals.append(img[np.int(pt[1]), np.int(pt[0]), 1])
-		b_vals.append(img[np.int(pt[1]), np.int(pt[0]), 2])
+		h_vals.append(img[np.int(pt[1]), np.int(pt[0]), 0])
+		s_vals.append(img[np.int(pt[1]), np.int(pt[0]), 1])
+		v_vals.append(img[np.int(pt[1]), np.int(pt[0]), 2])
 	
-	return r_vals, g_vals, b_vals
+	return h_vals, s_vals, v_vals
 
 
 def vid2research(input_media, some_param=1):
@@ -46,9 +47,9 @@ def vid2research(input_media, some_param=1):
 	ret, frame = cap.read()
 	points = get_points(frame)
 
-	r_vals_mat = []
-	g_vals_mat = []
-	b_vals_mat = []
+	h_vals_mat = []
+	s_vals_mat = []
+	v_vals_mat = []
 	# Read until video is completed
 	while (cap.isOpened()):
 		# capture frame-by-frame
@@ -57,10 +58,10 @@ def vid2research(input_media, some_param=1):
 		if ret == True:
 
 			# get colour values and append to colour values matrix
-			r_vals, g_vals, b_vals = get_colour(frame, points)
-			r_vals_mat.append(r_vals)
-			g_vals_mat.append(g_vals)
-			b_vals_mat.append(b_vals)
+			h_vals, s_vals, v_vals = get_colour(frame, points)
+			h_vals_mat.append(h_vals)
+			s_vals_mat.append(s_vals)
+			v_vals_mat.append(v_vals)
 
 			# display the resulting frame
 			#cv2.imshow('frame', frame)
@@ -75,7 +76,7 @@ def vid2research(input_media, some_param=1):
 	cap.release()
 	#cv2.destroyAllWindows()
 
-	return r_vals_mat, g_vals_mat, b_vals_mat
+	return h_vals_mat, s_vals_mat, v_vals_mat
 
 
 
@@ -89,10 +90,10 @@ media_path = 'videos'
 media_name = '25mgmL_THF_varying_pH'
 
 # get RGB values for each of the 4 wells for every frame
-r_mat, g_mat, b_mat = vid2research(media_path + '/' + media_name + '.mov')
-r_mat = np.array(r_mat)
-g_mat = np.array(g_mat)
-b_mat = np.array(b_mat)
+h_mat, s_mat, v_mat = vid2research(media_path + '/' + media_name + '.mov')
+h_mat = np.array(h_mat)
+s_mat = np.array(s_mat)
+v_mat = np.array(v_mat)
 
 # plotting
 fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(7, 7))
@@ -100,18 +101,18 @@ fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(7, 7))
 for i in range(3):
 	for j in range(4):
 		axs[i,j].set_xlabel("Time")
-		axs[i,j].set_ylabel("Pixel Value")
+		axs[i,j].set_ylabel("Central Pixel Value")
 
 for j in range(4):
-	axs[0, j].set_title("R, Well " + str(j + 1))
-	axs[1, j].set_title("G, Well " + str(j + 1))
-	axs[2, j].set_title("B, Well " + str(j + 1))
+	axs[0, j].set_title("H, Well " + str(j + 1))
+	axs[1, j].set_title("S, Well " + str(j + 1))
+	axs[2, j].set_title("V, Well " + str(j + 1))
 
-	axs[0, j].plot(r_mat[:,j], np.arange(len(r_mat[:,j])))
-	axs[1, j].plot(g_mat[:,j], np.arange(len(r_mat[:,j])))
-	axs[2, j].plot(b_mat[:,j], np.arange(len(r_mat[:,j])))
+	axs[0, j].plot(np.arange(len(h_mat[:,j])), h_mat[:,j])
+	axs[1, j].plot(np.arange(len(h_mat[:,j])), s_mat[:,j])
+	axs[2, j].plot(np.arange(len(h_mat[:,j])), v_mat[:,j])
 
 fig.tight_layout()
 output_path = 'outputs'
-plt.savefig(outputs + '/' + media_name)
+plt.savefig(output_path + '/' + media_name)
 
