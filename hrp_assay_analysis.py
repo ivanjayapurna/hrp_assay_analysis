@@ -112,5 +112,6 @@ for j in range(4):
 	axs[2, j].plot(b_mat[:,j], np.arange(len(r_mat[:,j])))
 
 fig.tight_layout()
-plt.savefig(media_name)
+output_path = 'outputs'
+plt.savefig(outputs + '/' + media_name)
 
