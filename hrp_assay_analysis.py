@@ -1,6 +1,20 @@
+# Code written by Ivan Jayapurna on 2020/03/19 for the Ting Xu Group
+
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+
+#####################
+###### INPUTS #######
+#####################
+
+# make sure to actually create input and output folders.
+media_path = 'videos'
+output_path = 'outputs'
+
+# specify video name
+# MAKE SURE TO CROP STARTING FROM AFTER THE SHAKING IS DONE
+media_name = '25mgmL_THF_varying_pH'
 
 
 #####################
@@ -79,21 +93,19 @@ def vid2research(input_media, some_param=1):
 	return h_vals_mat, s_vals_mat, v_vals_mat
 
 
-
 ##################
 ##### SCRIPT #####
 ##################
-
-# MAKE SURE TO CROP STARTING FROM AFTER THE SHAKING IS DONE
-# specify video name
-media_path = 'videos'
-media_name = '25mgmL_THF_varying_pH'
 
 # get RGB values for each of the 4 wells for every frame
 h_mat, s_mat, v_mat = vid2research(media_path + '/' + media_name + '.mov')
 h_mat = np.array(h_mat)
 s_mat = np.array(s_mat)
 v_mat = np.array(v_mat)
+
+# save GREYSCALE VALUES to CSV
+np.savetxt(output_path + '/' + media_name + "_values.csv", v_mat, delimiter=",")
+
 
 # plotting
 fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(7, 7))
@@ -104,15 +116,14 @@ for i in range(3):
 		axs[i,j].set_ylabel("Central Pixel Value")
 
 for j in range(4):
-	axs[0, j].set_title("H, Well " + str(j + 1))
-	axs[1, j].set_title("S, Well " + str(j + 1))
-	axs[2, j].set_title("V, Well " + str(j + 1))
+	axs[0, j].set_title("Hue, Well " + str(j + 1))
+	axs[1, j].set_title("Sat, Well " + str(j + 1))
+	axs[2, j].set_title("Val, Well " + str(j + 1))
 
 	axs[0, j].plot(np.arange(len(h_mat[:,j])), h_mat[:,j])
 	axs[1, j].plot(np.arange(len(h_mat[:,j])), s_mat[:,j])
 	axs[2, j].plot(np.arange(len(h_mat[:,j])), v_mat[:,j])
 
 fig.tight_layout()
-output_path = 'outputs'
 plt.savefig(output_path + '/' + media_name)
 
